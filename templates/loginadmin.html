@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Administration Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='styleadmin.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Login Side -->
+         <!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+        <div class="login-side" id="loginSide"> 
+                   
+            <h2 class="hospital-name">Welcome Back!</h2>
+            <p class="subtitle">Please Enter your Administrator credentials</p>
+
+            <!-- Send login form to Flask -->
+            <form id="loginForm" action="{{ url_for('admin_bp.admin_login') }}" method="POST">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="Enter admin email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" placeholder="Enter password" required>
+                </div>
+                
+                <a href="#" class="forgot-password">Forgot Password</a>
+                
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            
+            <div class="toggle-text">
+                Don't have an account? <a href="#" class="toggle-link" onclick="switchToRegister()">Register Hospital</a>
+            </div>
+        </div>
+
+        <!-- Register Side -->
+        <div class="register-side" id="registerSide">            
+            <h2 class="hospital-name">Register Hospital</h2>
+            <p class="subtitle">Join our Healthcare Administration Network</p>
+
+            <!-- Send register form to Flask -->
+            <form id="registerForm" action="{{ url_for('admin_bp.register_admin') }}" method="POST">
+                <div class="form-group">
+                    <label for="hospitalName">Hospital Name</label>
+                    <input type="text" id="hospitalName" name="hospitalName" placeholder="Enter hospital name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminName">Administrator Name</label>
+                    <input type="text" id="adminName" name="adminName" placeholder="Enter administrator name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Official Email Address</label>
+                    <input type="email" id="registerEmail" name="email" placeholder="Enter official email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalId">Hospital Registration ID</label>
+                    <input type="text" id="hospitalId" name="hospitalId" placeholder="Enter hospital registration ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalType">Hospital Type</label>
+                    <select id="hospitalType" name="hospitalType" required>
+                        <option value="">Select Hospital Type</option>
+                        <option value="general">General Hospital</option>
+                        <option value="specialty">Specialty Hospital</option>
+                        <option value="teaching">Teaching Hospital</option>
+                        <option value="critical_access">Critical Access Hospital</option>
+                        <option value="rehabilitation">Rehabilitation Hospital</option>
+                        <option value="psychiatric">Psychiatric Hospital</option>
+                        <option value="children">Children's Hospital</option>
+                        <option value="cancer">Cancer Center</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Administrative Role</label>
+                    <div class="role-grid">
+                        <label class="role-option">
+                            <input type="radio" name="role" value="ceo" required>
+                            <span><i class="fas fa-user-tie"></i> CEO</span>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="coo" required>
+                            <span><i class="fas fa-briefcase"></i> COO</span>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="quality_director" required>
+                            <span><i class="fas fa-award"></i> Quality Director</span>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="finance_director" required>
+                            <span><i class="fas fa-chart-pie"></i> Finance Director</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bedCount">Hospital Bed Count</label>
+                    <input type="number" id="bedCount" name="bedCount" placeholder="Enter number of beds" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" name="password" placeholder="Create password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                </div>
+
+                <button type="submit" class="submit-btn">Register Hospital</button>
+            </form>
+
+            <div class="toggle-text">
+                Already registered? <a href="#" class="toggle-link" onclick="switchToLogin()">Sign in</a>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel" id="infoPanel">
+            <!-- (keeping your SVG & features, unchanged) -->
+            <div class="logo-container">
+                <!-- Your existing SVG stays here -->
+            </div>
+
+            <div class="logo-text">
+                <h2 class="logo-title" id="dynamicTitle">Hospital Administration</h2>
+                <p class="logo-subtitle" id="dynamicSubtitle">Management Portal</p>
+            </div>
+
+            <div class="dynamic-content" id="dynamicContent">
+                <h3 class="content-title" id="contentTitle">Administrator Access</h3>
+                <p class="content-description" id="contentDescription">Monitor readmission rates, cost savings, and operational metrics.</p>
+            </div>
+
+            <div class="features-list" id="featuresList">
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Cost Reduction Analytics</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-hospital"></i>
+                    <span>Readmission Monitoring</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Financial Performance</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between login/register panels
+        function switchToRegister() {
+            document.getElementById('loginSide').classList.add('slide-right');
+            document.getElementById('registerSide').classList.add('slide-left');
+            document.getElementById('infoPanel').classList.add('move-left');
+            updateInfoPanelContent(true);
+        }
+
+        function switchToLogin() {
+            document.getElementById('loginSide').classList.remove('slide-right');
+            document.getElementById('registerSide').classList.remove('slide-left');
+            document.getElementById('infoPanel').classList.remove('move-left');
+            updateInfoPanelContent(false);
+        }
+
+        // Update info panel
+        function updateInfoPanelContent(isRegister) {
+            const contentTitle = document.getElementById('contentTitle');
+            const contentDescription = document.getElementById('contentDescription');
+            const featuresList = document.getElementById('featuresList');
+            
+            if (isRegister) {
+                contentTitle.textContent = 'Register Your Hospital';
+                contentDescription.textContent = 'Join our network to track readmission costs and savings.';
+                featuresList.innerHTML = `
+                    <div class="feature-item">
+                        <i class="fas fa-hospital-user"></i>
+                        <span>Hospital Registration</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>Admin Verification</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-network-wired"></i>
+                        <span>System Integration</span>
+                    </div>
+                `;
+            } else {
+                contentTitle.textContent = 'Administrator Access';
+                contentDescription.textContent = 'Monitor readmission rates, cost savings, and operational metrics.';
+                featuresList.innerHTML = `
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Cost Reduction Analytics</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-hospital"></i>
+                        <span>Readmission Monitoring</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Financial Performance</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateInfoPanelContent(false);
+            
+            // Role selection highlight
+            const roleOptions = document.querySelectorAll('.role-option');
+            roleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    roleOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    this.querySelector('input[type="radio"]').checked = true;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

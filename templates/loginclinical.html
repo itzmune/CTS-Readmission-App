@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Readmission Risk Prediction</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='styleclinical.css') }}" rel="stylesheet">
+
+</head>
+<body>
+    <div class="main-container">
+        <!-- Login Side -->
+         <!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+        
+        <div class="login-side" id="loginSide">
+                        
+            <h2 class="hospital-name">Welcome Back!</h2>
+            <p class="subtitle">Please Enter your Account details</p>
+
+            <form action="{{ url_for('clinical_bp.login_clinical') }}" method="POST">
+
+
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="Enter email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" placeholder="Enter password" required>
+                </div>
+                
+                <a href="#" class="forgot-password">Forgot Password</a>
+                
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            
+
+            <div class="toggle-text">
+                Don't have an account? <a href="#" class="toggle-link" onclick="switchToRegister()">Sign up</a>
+            </div>
+        </div>
+
+        <!-- Register Side -->
+        <div class="register-side" id="registerSide">            
+            <h2 class="hospital-name">Create Account</h2>
+            <p class="subtitle">Join our Clinical Staff Portal</p>
+
+<form id="registerForm" action="{{ url_for('clinical_bp.register_clinical') }}" method="POST">
+    <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Enter full name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="registerEmail">Email Address</label>
+        <input type="email" id="registerEmail" name="email" placeholder="Enter email" required>
+    </div>
+
+    <div class="form-group">
+        <label for="staffId">Staff ID</label>
+        <input type="text" id="staffId" name="staffId" placeholder="Enter staff ID" required>
+    </div>
+
+    <div class="form-group">
+        <label for="department">Department</label>
+        <select id="department" name="department" required>
+            <option value="">Select Department</option>
+            <option value="cardiology">Cardiology</option>
+            <option value="orthopedics">Orthopedics</option>
+            <option value="internal_medicine">Internal Medicine</option>
+            <option value="emergency">Emergency Medicine</option>
+            <option value="neurology">Neurology</option>
+            <option value="surgery">Surgery</option>
+            <option value="pediatrics">Pediatrics</option>
+            <option value="icu">Intensive Care Unit</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Role</label>
+        <div class="role-grid">
+            <label class="role-option">
+                <input type="radio" name="role" value="doctor" required>
+                <span><i class="fas fa-user-md"></i> Doctor</span>
+            </label>
+            <label class="role-option">
+                <input type="radio" name="role" value="nurse" required>
+                <span><i class="fas fa-user-nurse"></i> Nurse</span>
+            </label>
+            <label class="role-option">
+                <input type="radio" name="role" value="case_manager" required>
+                <span><i class="fas fa-clipboard-list"></i> Case Manager</span>
+            </label>
+            <label class="role-option">
+                <input type="radio" name="role" value="discharge_planner" required>
+                <span><i class="fas fa-calendar-check"></i> Discharge Planner</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" name="password" placeholder="Create password" required>
+    </div>
+
+    <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+    </div>
+
+    <button type="submit" class="submit-btn">Create Account</button>
+</form>
+
+
+            <div class="toggle-text">
+                Already have an account? <a href="#" class="toggle-link" onclick="switchToLogin()">Sign in</a>
+            </div>
+        </div>
+
+        
+<!-- Replace the info-panel content with this -->
+<div class="info-panel" id="infoPanel">
+    <!-- Logo Container -->
+    <div class="logo-container">
+        <!-- SVG Clinical Staff Logo -->
+        <svg class="clinical-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background Circle -->
+            <circle cx="100" cy="100" r="95" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+            
+            <!-- Medical Cross -->
+            <rect x="85" y="60" width="30" height="80" fill="white" rx="5"/>
+            <rect x="60" y="85" width="80" height="30" fill="white" rx="5"/>
+            
+            <!-- Stethoscope -->
+            <path d="M70 45 Q65 40 60 45 Q55 50 60 55 L65 60 Q70 65 75 60 L80 55" 
+                  stroke="rgba(255,255,255,0.9)" stroke-width="3" fill="none"/>
+            <circle cx="60" cy="50" r="8" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>
+            
+            <!-- Heartbeat Line -->
+            <path d="M30 100 L40 100 L45 85 L50 115 L55 85 L60 100 L170 100" 
+                  stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none"/>
+            
+            <!-- Medical Clipboard -->
+            <rect x="120" y="140" width="35" height="45" fill="rgba(255,255,255,0.8)" rx="3"/>
+            <rect x="125" y="145" width="25" height="3" fill="#1e3a8a" rx="1"/>
+            <rect x="125" y="152" width="20" height="2" fill="#64748b" rx="1"/>
+            <rect x="125" y="157" width="18" height="2" fill="#64748b" rx="1"/>
+            <rect x="125" y="162" width="22" height="2" fill="#64748b" rx="1"/>
+            <rect x="125" y="167" width="15" height="2" fill="#64748b" rx="1"/>
+        </svg>
+        
+        <!-- Dynamic Logo Text -->
+        <div class="logo-text">
+            <h2 class="logo-title" id="dynamicTitle">Clinical Staff</h2>
+            <p class="logo-subtitle" id="dynamicSubtitle">Healthcare Portal</p>
+        </div>
+        
+        <!-- Dynamic Content Text -->
+        <div class="dynamic-content" id="dynamicContent">
+            <h3 class="content-title" id="contentTitle">Sign In Here</h3>
+            <p class="content-description" id="contentDescription">Access your clinical dashboard and manage patient care efficiently.</p>
+        </div>
+        
+        <!-- Features List -->
+        <div class="features-list" id="featuresList">
+            <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure Patient Data</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Risk Analytics</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-users"></i>
+                <span>Team Collaboration</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Switch between login & register panels
+    function switchToRegister() {
+        document.getElementById('loginSide').classList.add('slide-right');
+        document.getElementById('registerSide').classList.add('slide-left');
+        document.getElementById('infoPanel').classList.add('move-left');
+        updateInfoPanelContent(true);
+    }
+
+    function switchToLogin() {
+        document.getElementById('loginSide').classList.remove('slide-right');
+        document.getElementById('registerSide').classList.remove('slide-left');
+        document.getElementById('infoPanel').classList.remove('move-left');
+        updateInfoPanelContent(false);
+    }
+
+    // Update info panel text depending on mode
+    function updateInfoPanelContent(isRegister) {
+        const contentTitle = document.getElementById('contentTitle');
+        const contentDescription = document.getElementById('contentDescription');
+        const featuresList = document.getElementById('featuresList');
+        
+        if (isRegister) {
+            contentTitle.textContent = 'Start Your Account Here';
+            contentDescription.textContent = ' ';
+            featuresList.innerHTML = `
+                <div class="feature-item">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Quick Registration</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-id-badge"></i>
+                    <span>Staff Verification</span>
+                </div>
+            `;
+        } else {
+            contentTitle.textContent = 'Sign In Here';
+            contentDescription.textContent = ' ';
+            featuresList.innerHTML = `
+                <div class="feature-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure Patient Data</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Risk Analytics</span>
+                </div>
+            `;
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateInfoPanelContent(false);
+
+        // Role selection styling
+        const roleOptions = document.querySelectorAll('.role-option');
+        roleOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                roleOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

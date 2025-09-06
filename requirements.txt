@@ -1,0 +1,17 @@
+Flask
+Flask-SQLAlchemy
+Flask-Bcrypt
+Flask-Login
+pandas
+numpy
+scikit-learn
+xgboost
+mysql-connector-python
+psycopg2-binary
+gunicorn
+python-dotenv
+reportlab
+flask_mail
+snowflake-connector-python
+google-generativeai
+gtts

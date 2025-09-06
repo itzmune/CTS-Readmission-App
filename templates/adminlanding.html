@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - IntelliCare</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-blue: #1e40af;
+      --secondary-blue: #2563eb;
+      --tertiary-teal: #0891b2;
+      --blue-gray: #475569;
+      --light-gray: #f8fafc;
+      --white: #ffffff;
+      --dark-blue: #0f172a;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --accent-blue: #3b82f6;
+      --success-green: #10b981;
+      --warning-orange: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Raleway", sans-serif;
+    }
+
+    body {
+      background: var(--slate-50);
+      color: var(--blue-gray);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Enhanced Navbar */
+    .navbar {
+      background: var(--white);
+      border-bottom: 2px solid var(--slate-200);
+      box-shadow: 0 4px 20px rgba(30, 64, 175, 0.08);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 16px 0;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-container {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    }
+
+    .logo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .brand-name {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--primary-blue);
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--blue-gray);
+      font-weight: 500;
+      font-size: 15px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-blue);
+      background: var(--slate-100);
+    }
+
+    /* Hero Section */
+    .hero-section {
+      padding-top: 120px;
+      padding-bottom: 40px;
+      background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
+      border-bottom: 1px solid var(--slate-200);
+      position: relative;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(30, 64, 175, 0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(8, 145, 178, 0.02) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--dark-blue);
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      color: var(--blue-gray);
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .hero-description {
+      font-size: 16px;
+      color: var(--blue-gray);
+      max-width: 600px;
+      margin: 0 auto;
+      opacity: 0.8;
+    }
+
+    /* Dashboard Section */
+    .dashboard-section {
+      padding: 60px 40px;
+      background: var(--slate-50);
+    }
+
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 12px;
+    }
+
+    .section-description {
+      font-size: 16px;
+      color: var(--blue-gray);
+      opacity: 0.8;
+    }
+
+    .portals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 32px;
+      margin-top: 40px;
+    }
+
+    /* Enhanced Portal Cards */
+    .portal-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 40px;
+      border: 1px solid var(--slate-200);
+      box-shadow: 0 8px 32px rgba(30, 64, 175, 0.06);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-blue);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .portal-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .portal-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(30, 64, 175, 0.12);
+      border-color: var(--primary-blue);
+    }
+
+    .portal-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .portal-icon-container {
+      width: 64px;
+      height: 64px;
+      background: var(--primary-blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(30, 64, 175, 0.2);
+      flex-shrink: 0;
+    }
+
+    .portal-card:hover .portal-icon-container {
+      background: var(--secondary-blue);
+      transform: scale(1.05);
+    }
+
+    .portal-icon {
+      font-size: 24px;
+      color: var(--white);
+    }
+
+    .portal-info {
+      flex: 1;
+    }
+
+    .portal-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .portal-role {
+      font-size: 14px;
+      color: var(--tertiary-teal);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .portal-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--success-green);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success-green);
+      border-radius: 50%;
+    }
+
+    .portal-description {
+      font-size: 16px;
+      color: var(--blue-gray);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      opacity: 0.9;
+    }
+
+    .portal-stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary-blue);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--blue-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.7;
+    }
+
+    .portal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .portal-button {
+      flex: 1;
+      padding: 14px 24px;
+      border: 2px solid var(--primary-blue);
+      background: var(--primary-blue);
+      color: var(--white);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .portal-button:hover {
+      background: var(--secondary-blue);
+      border-color: var(--secondary-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(30, 64, 175, 0.3);
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .portal-button.secondary {
+      background: transparent;
+      color: var(--primary-blue);
+    }
+
+    .portal-button.secondary:hover {
+      background: var(--slate-100);
+      transform: translateY(-2px);
+      box-shadow: none;
+    }
+
+    /* Quick Stats Bar */
+    .stats-bar {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 16px rgba(30, 64, 175, 0.04);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 32px;
+    }
+
+    .quick-stat {
+      text-align: center;
+    }
+
+    .quick-stat-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary-blue);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .quick-stat-label {
+      font-size: 14px;
+      color: var(--blue-gray);
+      font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .portals-grid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        padding: 0 20px;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 36px;
+      }
+
+      .hero-subtitle {
+        font-size: 18px;
+      }
+
+      .dashboard-section {
+        padding: 40px 20px;
+      }
+
+      .portal-card {
+        padding: 30px;
+      }
+
+      .portal-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .portal-stats {
+        justify-content: center;
+      }
+
+      .portal-actions {
+        flex-direction: column;
+      }
+    }
+
+    /* Loading Animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .portal-card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .portal-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <!-- Enhanced Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo-section">
+         <div class="logo-container" style="width:60px;height:60px;">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" 
+             alt="IntelliCare Logo"
+             style="width:100%;height:100%;object-fit:contain;">
+    </div>
+        <div class="brand-name">IntelliCare</div>
+      </div>
+      <nav class="nav-links">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#analytics">Analytics</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <h1 class="hero-title">Admin Dashboard</h1>
+      <p class="hero-subtitle">Intelligent Healthcare Management System</p>
+      <p class="hero-description">
+        Access comprehensive analytics, cost validation, and administrative tools to optimize healthcare operations and patient outcomes.
+      </p>
+    </div>
+  </section>
+
+  <!-- Dashboard Section -->
+  <section class="dashboard-section" id="dashboard">
+    <div class="dashboard-container">
+
+      <!-- Portals Grid -->
+      <div class="portals-grid">
+        <div class="portal-card">
+          <div class="portal-header">
+            <div class="portal-icon-container">
+              <i class="fas fa-chart-line portal-icon"></i>
+            </div>
+            <div class="portal-info">
+              <h3 class="portal-name">Analytics Report</h3>
+              <p class="portal-role">Data Intelligence</p>
+              <div class="portal-status">
+                <div class="status-dot"></div>
+                <span>Live Data</span>
+              </div>
+            </div>
+          </div>
+          <p class="portal-description">
+            Access comprehensive AI-powered hospital analytics with real-time patient monitoring, outcome predictions, and actionable business intelligence insights.
+          </p>
+    
+          <div class="portal-actions">
+            <a href="{{ url_for('admin_bp.admin_dashboard') }}" class="portal-button">View Dashboard</a>
+          </div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-header">
+            <div class="portal-icon-container">
+              <i class="fas fa-money-check-alt portal-icon"></i>
+            </div>
+            <div class="portal-info">
+              <h3 class="portal-name">Cost Validation</h3>
+              <p class="portal-role">Financial Control</p>
+              <div class="portal-status">
+                <div class="status-dot"></div>
+                <span>Synchronized</span>
+              </div>
+            </div>
+          </div>
+          <p class="portal-description">
+            Ensures measurable financial impact by validating reduced readmission-related costs through predictive interventions and improved care coordination.
+          </p>
+          <div class="portal-actions">
+            <a href="{{ url_for('admin_bp.cost_validation') }}" class="portal-button">View Report</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
