@@ -1,19 +1,11 @@
 # routes/report_routes.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_file, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_file
 import google.generativeai as genai
 import json, re, io, os
 from gtts import gTTS
 import snowflake.connector
 from datetime import datetime
 from dotenv import load_dotenv
-
-# PDF generation
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.pagesizes import A4
-
-# Email
-from flask_mail import Mail, Message
 
 # Load environment variables
 load_dotenv()
@@ -22,7 +14,7 @@ report_bp = Blueprint("report_bp", __name__, url_prefix="/reports")
 
 # ========= Config =========
 # Gemini API
-API_KEY = "AIzaSyCyAo9oZycJXYQN6WzhxVjTR3294obou0c"
+API_KEY = "AIzaSyCnd8JHL9t-E-bgL6OBH5WRGhftgyEYtJs"
 genai.configure(api_key=API_KEY)
 
 # Snowflake connection details from .env
@@ -43,19 +35,6 @@ TTS_LANG_CODES = {
     "German": "de", "Tamil": "ta", "Malayalam": "ml",
 }
 
-# ========= Mail Setup =========
-mail = Mail()
-
-def init_mail(app):
-    """Initialize Flask-Mail with app config"""
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")   # your Gmail
-    app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")   # Gmail app password
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_USERNAME")
-    mail.init_app(app)
-
 # ========= Helpers =========
 def get_db_connection():
     """Get Snowflake DB connection."""
@@ -66,7 +45,6 @@ def get_patient_row(patient_id: str):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        # Snowflake Python connector supports DB-API style binding
         cur.execute("SELECT * FROM patients WHERE SUBJECT_ID = %s", (patient_id,))
         row = cur.fetchone()
         if not row:
@@ -88,19 +66,21 @@ def get_patient_row(patient_id: str):
 def language_ui_labels(lang: str):
     """Labels per language (UI text)."""
     translations = {
-        "English": {"title": "🏥 Post-Discharge Care Report","summary": "Summary","risk": "Risk Level","follow_up": "Follow-Up","monitoring": "Monitoring","tips": "Helpful Tips","listen": "Listen to Care Plan","print_btn": "Download PDF","language_label": "Language"},
-        "Tamil": {"title": "🏥 டிஸ்சார்ஜ் பிந்தைய பராமரிப்பு அறிக்கை","summary": "சுருக்கம்","risk": "அபாய நிலை","follow_up": "பின்தொடர்வு","monitoring": "கண்காணிப்பு","tips": "பயனுள்ள குறிப்புகள்","listen": "பராமரிப்பு திட்டத்தை கேளுங்கள்","print_btn": "PDF பதிவிறக்குக","language_label": "மொழி"},
-        "Hindi": {"title": "🏥 डिस्चार्ज के बाद की देखभाल रिपोर्ट","summary": "सारांश","risk": "जोखिम स्तर","follow_up": "फॉलो-अप","monitoring": "निगरानी","tips": "उपयोगी सुझाव","listen": "अपनी देखभाल योजना सुनें","print_btn": "PDF डाउनलोड करें","language_label": "भाषा"},
-        "Spanish": {"title": "🏥 Informe de Atención Post-Alta","summary": "Resumen","risk": "Nivel de Riesgo","follow_up": "Seguimiento","monitoring": "Monitoreo","tips": "Consejos Útiles","listen": "Escuche su Plan de Atención","print_btn": "Descargar PDF","language_label": "Idioma"},
-        "French": {"title": "🏥 Rapport de Soins Après la Sortie","summary": "Résumé","risk": "Niveau de Risque","follow_up": "Suivi","monitoring": "Surveillance","tips": "Conseils Utiles","listen": "Écouter le Plan de Soins","print_btn": "Télécharger le PDF","language_label": "Langue"},
-        "German": {"title": "🏥 Nachsorge-Bericht","summary": "Zusammenfassung","risk": "Risikostufe","follow_up": "Nachsorge","monitoring": "Überwachung","tips": "Nützliche Tipps","listen": "Pflegeplan anhören","print_btn": "PDF herunterladen","language_label": "Sprache"},
-        "Malayalam": {"title": "🏥 ഡിസ്ചാർജ് ശേഷമുള്ള പരിചരണ റിപ്പോർട്ട്","summary": "സംക്ഷേപം","risk": "റിസ്‌ക് നില","follow_up": "ഫോളോ-അപ്പ്","monitoring": "നിരീക്ഷണം","tips": "ഉപകാരപ്രദമായ നിർദ്ദേശങ്ങൾ","listen": "പരിചരണ പദ്ധതി കേൾക്കുക","print_btn": "PDF ഡൗൺലോഡ് ചെയ്യുക","language_label": "ഭാഷ"},
+        "English": {"title": "🏥 Post-Discharge Care Report","summary": "Summary","risk": "Risk Level","follow_up": "Follow-Up","monitoring": "Monitoring","tips": "Helpful Tips","listen": "Listen to Care Plan","print_btn": "Print Report","language_label": "Language"},
+        "Tamil": {"title": "🏥 டிஸ்சார்ஜ் பிந்தைய பராமரிப்பு அறிக்கை","summary": "சுருக்கம்","risk": "அபாய நிலை","follow_up": "பின்தொடர்வு","monitoring": "கண்காணிப்பு","tips": "பயனுள்ள குறிப்புகள்","listen": "பராமரிப்பு திட்டத்தை கேளுங்கள்","print_btn": "அறிக்கையை அச்சிடு","language_label": "மொழி"},
+        "Hindi": {"title": "🏥 डिस्चार्ज के बाद की देखभाल रिपोर्ट","summary": "सारांश","risk": "जोखिम स्तर","follow_up": "फॉलो-अप","monitoring": "निगरानी","tips": "उपयोगी सुझाव","listen": "अपनी देखभाल योजना सुनें","print_btn": "रिपोर्ट प्रिंट करें","language_label": "भाषा"},
+        "Spanish": {"title": "🏥 Informe de Atención Post-Alta","summary": "Resumen","risk": "Nivel de Riesgo","follow_up": "Seguimiento","monitoring": "Monitoreo","tips": "Consejos Útiles","listen": "Escuche su Plan de Atención","print_btn": "Imprimir Informe","language_label": "Idioma"},
+        "French": {"title": "🏥 Rapport de Soins Après la Sortie","summary": "Résumé","risk": "Niveau de Risque","follow_up": "Suivi","monitoring": "Surveillance","tips": "Conseils Utiles","listen": "Écouter le Plan de Soins","print_btn": "Imprimer le Rapport","language_label": "Langue"},
+        "German": {"title": "🏥 Nachsorge-Bericht","summary": "Zusammenfassung","risk": "Risikostufe","follow_up": "Nachsorge","monitoring": "Überwachung","tips": "Nützliche Tipps","listen": "Pflegeplan anhören","print_btn": "Bericht drucken","language_label": "Sprache"},
+        "Malayalam": {"title": "🏥 ഡിസ്ചാർജ് ശേഷമുള്ള പരിചരണ റിപ്പോർട്ട്","summary": "സംക്ഷേപം","risk": "റിസ്‌ക് നില","follow_up": "ഫോളോ-அപ്പ്","monitoring": "നിരീക്ഷണം","tips": "உபകാരപ്രദമായ നിർദ്ദേശങ്ങൾ","listen": "പരിചരണ പദ്ധതി കേൾക്കുക","print_btn": "റിപ്പോർട്ട് പ്രിന്റ് ചെയ്യുക","language_label": "ഭാഷ"},
     }
     return translations.get(lang, translations["English"])
 
 def build_llm_prompt(patient: dict, preferred_language: str):
     """Builds LLM prompt using patient data."""
     patient_lower = {k.lower(): v for k, v in patient.items()}
+    age = patient_lower.get("age", "N/A")
+    diagnosis = patient_lower.get("diagnosis", "Unknown")
     risk_category = patient.get("risk_category", "Low")
 
     return f"""
@@ -118,7 +98,8 @@ JSON format:
 }}
 
 Patient Info:
-
+- Age: {age}
+- Diagnosis: {diagnosis}
 - Risk: {risk_category}
 """
 
@@ -142,80 +123,10 @@ def build_tts_text(ui, patient, parsed):
         parts.extend(risk.get("things_to_watch", []))
     for appt in parsed.get("follow_up_plan", []):
         parts.append(f"{appt.get('appointment','')} - {appt.get('date','')}: {appt.get('instructions','')}")
-    parts.extend((parsed.get("monitoring", {}) or {}).get("weight_check", []))
-    parts.extend((parsed.get("monitoring", {}) or {}).get("symptoms_to_watch", []))
+    parts.extend(parsed.get("monitoring", {}).get("weight_check", []))
+    parts.extend(parsed.get("monitoring", {}).get("symptoms_to_watch", []))
     parts.extend(parsed.get("tips", []))
     return " ".join([p for p in parts if p])
-
-def _build_pdf_bytes(patient_id: str, patient: dict, report: dict, ui: dict) -> io.BytesIO:
-    """
-    Build the FULL PDF (title + all sections) and return a BytesIO ready to read().
-    Used by BOTH /download_pdf and /send_report to guarantee identical content.
-    """
-    # Defensive defaults so missing keys don't crash PDF build
-    report = report or {}
-    risk = report.get("risk_level", {}) or {}
-    follow_ups = report.get("follow_up_plan", []) or []
-    monitoring = report.get("monitoring", {}) or {}
-    weight_checks = monitoring.get("weight_check", []) or []
-    symptoms = monitoring.get("symptoms_to_watch", []) or []
-    tips = report.get("tips", []) or []
-
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-    story = []
-
-    # Title
-    story.append(Paragraph(ui.get("title", "Care Plan"), styles["Title"]))
-    story.append(Spacer(1, 12))
-
-    # Patient Info
-    story.append(Paragraph(f"<b>Patient ID:</b> {patient_id}", styles["Normal"]))
-    story.append(Paragraph(f"<b>Diagnosis:</b> {patient.get('DIAGNOSIS', patient.get('diagnosis', 'Unknown'))}", styles["Normal"]))
-    story.append(Paragraph(f"<b>{ui.get('risk','Risk')}:</b> {risk.get('explanation','')}", styles["Normal"]))
-    story.append(Spacer(1, 12))
-
-    # Summary
-    story.append(Paragraph(ui.get("summary", "Summary"), styles["Heading2"]))
-    story.append(Paragraph(patient.get("DIAGNOSIS", patient.get('diagnosis', '')), styles["Normal"]))
-    story.append(Spacer(1, 12))
-
-    # Risk
-    story.append(Paragraph(ui.get("risk", "Risk Level"), styles["Heading2"]))
-    story.append(Paragraph(risk.get("explanation",""), styles["Normal"]))
-    if risk.get("things_to_watch"):
-        story.append(ListFlowable([
-            ListItem(Paragraph(item, styles["Normal"])) for item in (risk.get("things_to_watch") or [])
-        ]))
-    story.append(Spacer(1, 12))
-
-    # Follow-up
-    story.append(Paragraph(ui.get("follow_up", "Follow-Up"), styles["Heading2"]))
-    if follow_ups:
-        story.append(ListFlowable([
-            ListItem(Paragraph(f"{(appt or {}).get('appointment','')} - {(appt or {}).get('date','')}: {(appt or {}).get('instructions','')}", styles["Normal"]))
-            for appt in follow_ups
-        ]))
-    story.append(Spacer(1, 12))
-
-    # Monitoring
-    story.append(Paragraph(ui.get("monitoring", "Monitoring"), styles["Heading2"]))
-    monitoring_items = list(weight_checks) + list(symptoms)
-    if monitoring_items:
-        story.append(ListFlowable([ListItem(Paragraph(item, styles["Normal"])) for item in monitoring_items]))
-    story.append(Spacer(1, 12))
-
-    # Tips
-    story.append(Paragraph(ui.get("tips", "Helpful Tips"), styles["Heading2"]))
-    if tips:
-        story.append(ListFlowable([ListItem(Paragraph(tip, styles["Normal"])) for tip in tips]))
-    story.append(Spacer(1, 12))
-
-    # Build
-    doc.build(story)
-    buffer.seek(0)
-    return buffer
 
 # ========= Routes =========
 @report_bp.route("/generate_report", methods=["POST"])
@@ -241,12 +152,8 @@ def generate_report():
         resp = model.generate_content(prompt)
         parsed = parse_json_strict(resp.text.strip())
     except Exception as e:
-        parsed = {
-            "risk_level": {"explanation": f"Error: {e}", "things_to_watch": []},
-            "follow_up_plan": [],
-            "monitoring": {"weight_check": [], "symptoms_to_watch": []},
-            "tips": []
-        }
+        parsed = {"risk_level":{"explanation":f"Error: {e}","things_to_watch":[]},
+                  "follow_up_plan":[],"monitoring":{"weight_check":[],"symptoms_to_watch":[]},"tips":[]}
 
     session["latest_report"] = {
         "patient_id": patient_id,
@@ -331,88 +238,7 @@ def audio(patient_id):
         tts = gTTS(tts_text, lang=lang_code)
         tts.write_to_fp(mp3_io)
         mp3_io.seek(0)
-        return send_file(
-            mp3_io,
-            mimetype="audio/mpeg",
-            as_attachment=False,
-            download_name=f"patient_{patient_id}_careplan_{lang_code}.mp3"
-        )
+        return send_file(mp3_io, mimetype="audio/mpeg", as_attachment=False,
+                         download_name=f"patient_{patient_id}_careplan_{lang_code}.mp3")
     except Exception as e:
         return (f"TTS error: {str(e)}", 500)
-
-@report_bp.route("/download_pdf/<patient_id>", methods=["GET"])
-def download_pdf(patient_id):
-    """Generate and download patient care plan as PDF."""
-    if "user" not in session:
-        return ("Unauthorized", 401)
-
-    data = session.get("latest_report")
-    if not data or data.get("patient_id") != str(patient_id):
-        return ("No report found", 404)
-
-    lang = data.get("preferred_language", "English")
-    ui = language_ui_labels(lang)
-    patient = data["patient"]
-    report = data["report"]
-
-    buffer = _build_pdf_bytes(patient_id, patient, report, ui)
-    return send_file(
-        buffer,
-        as_attachment=True,
-        download_name=f"patient_{patient_id}_careplan.pdf",
-        mimetype="application/pdf"
-    )
-
-@report_bp.route("/send_report/<patient_id>", methods=["GET"])
-def send_report(patient_id):
-    """Send patient care plan PDF via email."""
-    if "user" not in session:
-        flash("Please log in first.", "warning")
-        return redirect(url_for("clinical_bp.login_clinical"))
-
-    data = session.get("latest_report")
-    if not data or data.get("patient_id") != str(patient_id):
-        flash("No report found.", "danger")
-        return redirect(url_for("clinical_bp.dashboard"))
-
-    patient = data["patient"]
-    report = data["report"]
-    lang = data.get("preferred_language", "English")
-    ui = language_ui_labels(lang)
-
-    # 📌 Fetch patient email from DB or fallback
-    receiver_email = patient.get("EMAIL") or os.getenv("DEFAULT_RECEIVER_EMAIL")
-    if not receiver_email:
-        flash("❌ No receiver email found (missing EMAIL in DB and DEFAULT_RECEIVER_EMAIL in .env).", "danger")
-        return redirect(url_for("report_bp.report_page", patient_id=patient_id))
-
-    # Build the FULL PDF (same content as /download_pdf)
-    buffer = _build_pdf_bytes(patient_id, patient, report, ui)
-
-    # Build and send email
-    try:
-        print(f"📨 Preparing to send report for patient {patient_id} → {receiver_email}")
-        msg = Message(
-            subject=f"Patient {patient_id} - Care Plan Report",
-            recipients=[receiver_email]
-        )
-        msg.body = (
-            f"Dear Team,\n\n"
-            f"Please find attached the care plan report for patient {patient_id}.\n\n"
-            f"Best regards,\nCare System"
-        )
-        # Ensure we read from the start
-        buffer.seek(0)
-        msg.attach(
-            filename=f"patient_{patient_id}_careplan.pdf",
-            content_type="application/pdf",
-            data=buffer.read()
-        )
-        mail.send(msg)
-        print("✅ Email sent successfully")
-        flash(f"📧 Report sent successfully to {receiver_email}", "success")
-    except Exception as e:
-        print("❌ Email sending failed:", str(e))
-        flash(f"❌ Email sending failed: {str(e)}", "danger")
-
-    return redirect(url_for("report_bp.report_page", patient_id=patient_id))
