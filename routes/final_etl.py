@@ -12,14 +12,6 @@ REQUIRED_COLUMNS = [
     'TOTAL_MEDICATIONS', 'HAS_INSULIN', 'HAS_ANTIBIOTICS', 'HAS_DIURETICS',
     'HAS_PNEUMONIA', 'CHARLSON_MI', 'AGE_CATEGORY', 'READMIT_30'
 ]
-
-OUTPUT_DIR = "filtered_output"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# ──────────────────────────────
-# Core Functions
-# ──────────────────────────────
-
 def extract_required_columns(df: pd.DataFrame, file_name: str) -> pd.DataFrame:
     available_cols = [col.upper() for col in df.columns]
     df.columns = available_cols
@@ -51,14 +43,14 @@ def clean_and_transform_data(df: pd.DataFrame) -> pd.DataFrame:
         'SUBJECT_ID', 'DAYS_SINCE_LAST_ADMISSION', 'PREVIOUS_ADMISSIONS',
         'TOTAL_ICU_LOS_HOURS', 'HOSPITAL_LOS_HOURS', 'NUM_ICU_STAYS',
         'CHARLSON_SCORE', 'TOTAL_DIAGNOSES', 'AGE', 'TOTAL_MEDICATIONS',
-        'AGE_CATEGORY'
+        'AGE_CATEGORY','FREQUENT_FLYER'
     ]
     for col in numeric_cols:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(float)
 
     boolean_cols = [
-        'FREQUENT_FLYER', 'HAS_RENAL_FAILURE', 'CHARLSON_CHF', 'HAS_ANTICOAGULANTS',
+        'HAS_RENAL_FAILURE', 'CHARLSON_CHF', 'HAS_ANTICOAGULANTS',
         'CHARLSON_COPD', 'HAS_OPIOIDS', 'HAS_INSULIN', 'HAS_ANTIBIOTICS',
         'HAS_DIURETICS', 'HAS_PNEUMONIA', 'CHARLSON_MI', 'READMIT_30'
     ]
@@ -89,6 +81,13 @@ def process_csv_in_chunks(file_path: str) -> str:
     logging.info(f"✅ Finished processing {file_name}")
     logging.info(f"📁 Output saved to {output_file}")
     return output_file
+OUTPUT_DIR = "filtered_output"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# ──────────────────────────────
+# Core Functions
+# ──────────────────────────────
+
 file = requests.get('file')
 process_csv_in_chunks(file)
 # snowflake push data which stored in fileter_output
