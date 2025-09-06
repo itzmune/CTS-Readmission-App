@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 import shutil
 import pandas as pd
-from doc.project.routes.etl import extract_from_csv, transform_data, load_to_snowflake   
+from etl import extract_from_csv, transform_data, load_to_snowflake   
 
 UPLOAD_DIR = "uploads"
 PROCESSED_DIR = "processed"
