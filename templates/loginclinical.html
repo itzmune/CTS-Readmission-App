@@ -5,9 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Readmission Risk Prediction</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='styleclinical.css') }}" rel="stylesheet">
-
+    <style>
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column !important;
+                min-height: unset !important;
+                height: auto !important;
+            }
+            .info-panel {
+                display: none !important;
+            }
+            .login-side, .register-side {
+                width: 100% !important;
+                min-width: unset !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                padding: 32px 10vw !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .login-side, .register-side {
+                padding: 24px 4vw !important;
+            }
+            .form-group input,
+            .form-group select {
+                font-size: 1rem !important;
+                padding: 10px !important;
+            }
+            .submit-btn {
+                font-size: 1rem !important;
+                padding: 10px 0 !important;
+            }
+            .role-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+            }
+            .hospital-name {
+                font-size: 1.3rem !important;
+            }
+            .subtitle {
+                font-size: 1rem !important;
+            }
+        }
+        @media (max-width: 400px) {
+            .login-side, .register-side {
+                padding: 10px 2vw !important;
+            }
+            .hospital-name {
+                font-size: 1.05rem !important;
+            }
+            .subtitle {
+                font-size: 0.95rem !important;
+            }
+            .toggle-text {
+                font-size: 0.95rem !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="main-container">

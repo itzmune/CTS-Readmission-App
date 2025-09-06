@@ -168,11 +168,57 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .container {
+                padding: 0 4px !important;
+            }
             .card {
-                padding: 20px;
+                padding: 14px !important;
             }
             h2 {
-                font-size: 22px;
+                font-size: 20px;
+            }
+            .btn-primary, .btn-secondary, .btn-success {
+                padding: 8px 12px;
+                font-size: 0.98rem;
+            }
+            .form-select {
+                font-size: 0.98rem;
+            }
+            #audioPlayerBox {
+                width: 95vw;
+                right: 2vw;
+                left: 2vw;
+                bottom: 10px;
+                padding: 10px;
+            }
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 0 2px !important;
+            }
+            .card {
+                padding: 7px !important;
+            }
+            h2 {
+                font-size: 1.1rem;
+            }
+            h5 {
+                font-size: 1rem;
+                padding-left: 6px;
+            }
+            p, li {
+                font-size: 0.96rem;
+            }
+            .btn-primary, .btn-secondary, .btn-success {
+                padding: 7px 8px;
+                font-size: 0.95rem;
+            }
+            #audioPlayerBox {
+                width: 98vw;
+                right: 1vw;
+                left: 1vw;
+                bottom: 5px;
+                padding: 7px;
             }
         }
     </style>

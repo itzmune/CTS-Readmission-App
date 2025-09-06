@@ -72,6 +72,90 @@
     li div:first-child { font-size: 14px; }
     li small { font-size: 12px; color: #64748b; }
     .probability { font-weight: 600; }
+
+    @media (max-width: 900px) {
+      .app-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        padding: 0;
+        border-radius: 0;
+        min-height: unset;
+        height: auto;
+      }
+      .sidebar-header, .sidebar-footer {
+        display: none;
+      }
+      .nav-menu {
+        flex-direction: row;
+        display: flex;
+        margin-top: 0;
+        width: 100%;
+        justify-content: space-around;
+      }
+      .nav-item {
+        padding: 14px 0;
+        justify-content: center;
+        flex: 1;
+        font-size: 15px;
+      }
+      .nav-item a span {
+        display: none;
+      }
+      .nav-item a i {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .main-content {
+        padding: 12px;
+      }
+      .card {
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+        max-width: 100%;
+      }
+      .page-header h2 {
+        font-size: 1.1rem;
+      }
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        font-size: 0.98rem;
+        padding: 10px 4px;
+      }
+      .probability {
+        margin-top: 4px;
+        font-size: 1rem;
+      }
+      li div:first-child {
+        font-size: 13px;
+      }
+      li small {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .sidebar {
+        min-width: 0;
+        width: 100vw;
+      }
+      .main-content {
+        padding: 5px;
+      }
+      .card {
+        padding: 7px;
+      }
+      .page-header h2 {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
