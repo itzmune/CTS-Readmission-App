@@ -117,7 +117,7 @@ translations = {
 
 
 # --- Load Patient Data ---
-csv_path = r"M:\doc\project\readmission_data_export.csv"
+csv_path = r"D:\doc(final)\doc\project\readmission_data_export.csv"
 df = pd.read_csv(csv_path)
 df["risk_category"] = df["READMIT_30"].apply(lambda x: "High" if x > 0 else "Low")
 
