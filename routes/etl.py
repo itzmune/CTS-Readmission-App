@@ -3,7 +3,6 @@ import pandas as pd
 import logging
 import shutil
 
-# The 26 required columns
 REQUIRED_COLUMNS = [
     'SUBJECT_ID', 'DAYS_SINCE_LAST_ADMISSION', 'PREVIOUS_ADMISSIONS', 'FREQUENT_FLYER',
     'TOTAL_ICU_LOS_HOURS', 'HOSPITAL_LOS_HOURS', 'NUM_ICU_STAYS', 'CHARLSON_SCORE',
@@ -16,9 +15,7 @@ REQUIRED_COLUMNS = [
 OUTPUT_DIR = "filtered_output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ──────────────────────────────
-# Core Functions
-# ──────────────────────────────
+
 
 def extract_required_columns(df: pd.DataFrame, file_name: str) -> pd.DataFrame:
     available_cols = [col.upper() for col in df.columns]
@@ -86,9 +83,9 @@ def process_csv_in_chunks(file_path: str) -> str:
         cleaned_chunk.to_csv(output_file, mode=mode, header=not header_written, index=False)
         header_written = True
 
-    logging.info(f"✅ Finished processing {file_name}")
-    logging.info(f"📁 Output saved to {output_file}")
+    logging.info(f" Finished processing {file_name}")
+    logging.info(f" Output saved to {output_file}")
     return output_file
 file = requests.get('file')
 process_csv_in_chunks(file)
-# snowflake push data which stored in fileter_output
+
