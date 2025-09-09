@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import shutil
 
-# The 26 required columns
+
 REQUIRED_COLUMNS = [
     'SUBJECT_ID', 'DAYS_SINCE_LAST_ADMISSION', 'PREVIOUS_ADMISSIONS', 'FREQUENT_FLYER',
     'TOTAL_ICU_LOS_HOURS', 'HOSPITAL_LOS_HOURS', 'NUM_ICU_STAYS', 'CHARLSON_SCORE',
@@ -67,7 +67,7 @@ def process_csv_in_chunks(file_path: str) -> str:
     file_name = os.path.basename(file_path)
     output_file = os.path.join(OUTPUT_DIR, f"filtered_{file_name}")
 
-    chunk_size = 25
+    chunk_size = 1000
     header_written = False
 
     for chunk in pd.read_csv(file_path, chunksize=chunk_size):
@@ -78,16 +78,14 @@ def process_csv_in_chunks(file_path: str) -> str:
         cleaned_chunk.to_csv(output_file, mode=mode, header=not header_written, index=False)
         header_written = True
 
-    logging.info(f"✅ Finished processing {file_name}")
-    logging.info(f"📁 Output saved to {output_file}")
+    logging.info(f"Finished processing {file_name}")
+    logging.info(f"Output saved to {output_file}")
     return output_file
 OUTPUT_DIR = "filtered_output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ──────────────────────────────
-# Core Functions
-# ──────────────────────────────
+
 
 file = requests.get('file')
 process_csv_in_chunks(file)
-# snowflake push data which stored in fileter_output
+
