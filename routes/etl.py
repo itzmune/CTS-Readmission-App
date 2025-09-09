@@ -33,59 +33,76 @@ def extract_required_columns(df: pd.DataFrame, file_name: str) -> pd.DataFrame:
     filtered_df = filtered_df[REQUIRED_COLUMNS]
     return filtered_df
 
-def clean_and_transform_data(df: pd.DataFrame) -> pd.DataFrame:
-    df.fillna({
-        'PREVIOUS_ADMISSIONS': 0,
-        'TOTAL_ICU_LOS_HOURS': 0,
-        'NUM_ICU_STAYS': 0,
-        'CHARLSON_SCORE': 0,
-        'DAYS_SINCE_LAST_ADMISSION': 0,
-        'HOSPITAL_LOS_HOURS': 0,
-        'AGE': 0
-    }, inplace=True)
+def extract_from_csv(file_path: str) -> pd.DataFrame:
+    start_time = datetime.now()
+    try:
+        logging.info(f"[{start_time}] Starting extraction: {file_path}")
+        df = pd.read_csv(file_path)
+        logging.info(f"Extracted {df.shape[0]} rows, {df.shape[1]} columns")
+        return df
+    except Exception as e:
+        logging.error(f"Error extracting CSV {file_path}: {e}")
+        raise
 
-    numeric_cols = [
-        'SUBJECT_ID', 'DAYS_SINCE_LAST_ADMISSION', 'PREVIOUS_ADMISSIONS',
-        'TOTAL_ICU_LOS_HOURS', 'HOSPITAL_LOS_HOURS', 'NUM_ICU_STAYS',
-        'CHARLSON_SCORE', 'TOTAL_DIAGNOSES', 'AGE', 'TOTAL_MEDICATIONS',
-        'AGE_CATEGORY'
-    ]
-    for col in numeric_cols:
+def transform_data(df: pd.DataFrame) -> pd.DataFrame:
+    start_time = datetime.now()
+    logging.info(f"[{start_time}] Starting transformation")
+    # Standardize column names
+    df.columns = [col.strip().upper() for col in df.columns]
+
+    # Convert datetime columns
+    for col in ["ADMITTIME", "DISCHTIME"]:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+            df[col] = pd.to_datetime(df[col], errors="coerce")
 
-    boolean_cols = [
-        'FREQUENT_FLYER', 'HAS_RENAL_FAILURE', 'CHARLSON_CHF', 'HAS_ANTICOAGULANTS',
-        'CHARLSON_COPD', 'HAS_OPIOIDS', 'HAS_INSULIN', 'HAS_ANTIBIOTICS',
-        'HAS_DIURETICS', 'HAS_PNEUMONIA', 'CHARLSON_MI', 'READMIT_30'
+    # Calculate Hospital LOS Hours
+    if "ADMITTIME" in df.columns and "DISCHTIME" in df.columns:
+        df["HOSPITAL_LOS_HOURS"] = (df["DISCHTIME"] - df["ADMITTIME"]).dt.total_seconds() / 3600
+
+    # Convert datetime to UNIX timestamp
+    for col in ["ADMITTIME", "DISCHTIME"]:
+        if col in df.columns:
+            df[col] = df[col].astype("int64") // 10**9
+
+    # Boolean columns
+    bool_cols = [
+        "FREQUENT_FLYER","HAS_RENAL_FAILURE","CHARLSON_CHF","HAS_ANTICOAGULANTS",
+        "CHARLSON_COPD","HAS_OPIOIDS","HAS_INSULIN","HAS_ANTIBIOTICS",
+        "HAS_DIURETICS","HAS_PNEUMONIA","CHARLSON_MI","READMIT_30"
     ]
-    for col in boolean_cols:
+    for col in bool_cols:
         if col in df.columns:
             df[col] = df[col].astype(bool)
 
-    if 'PREVIOUS_ADMISSIONS' in df.columns:
-        df['FREQUENT_FLYER'] = df['PREVIOUS_ADMISSIONS'] > 3
+    # Handle missing numeric values
+    df.fillna({
+        "PREVIOUS_ADMISSIONS": 0,
+        "TOTAL_ICU_LOS_HOURS": 0,
+        "NUM_ICU_STAYS": 0,
+        "CHARLSON_SCORE": 0
+    }, inplace=True)
 
+    # Frequent flyer feature
+    if "PREVIOUS_ADMISSIONS" in df.columns:
+        df["FREQUENT_FLYER"] = df["PREVIOUS_ADMISSIONS"].apply(lambda x: x > 3)
+
+    numeric_cols = ["DAYS_SINCE_LAST_ADMISSION", "PREVIOUS_ADMISSIONS", "TOTAL_ICU_LOS_HOURS",
+                    "NUM_ICU_STAYS", "CHARLSON_SCORE"]
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+
+    logging.info(f"[{datetime.now()}] Transformation complete")
     return df
 
-def process_csv_in_chunks(file_path: str) -> str:
-    file_name = os.path.basename(file_path)
-    output_file = os.path.join(OUTPUT_DIR, f"filtered_{file_name}")
+clinical_bp = Blueprint("clinical_bp", __name__)
+UPLOAD_DIR = "uploads"
+PROCESSED_DIR = "processed"
+FAILED_DIR = "failed"
 
-    chunk_size = 25
-    header_written = False
-
-    for chunk in pd.read_csv(file_path, chunksize=chunk_size):
-        filtered_chunk = extract_required_columns(chunk, file_name)
-        cleaned_chunk = clean_and_transform_data(filtered_chunk)
-
-        mode = 'w' if not header_written else 'a'
-        cleaned_chunk.to_csv(output_file, mode=mode, header=not header_written, index=False)
-        header_written = True
-
-    logging.info(f" Finished processing {file_name}")
-    logging.info(f" Output saved to {output_file}")
-    return output_file
+os.makedirs(PROCESSED_DIR, exist_ok=True)
+os.makedirs(FAILED_DIR, exist_ok=True)
+# --------------------------
 file = requests.get('file')
 process_csv_in_chunks(file)
 
