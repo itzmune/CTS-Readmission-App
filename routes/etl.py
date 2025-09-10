@@ -108,7 +108,7 @@ def load_to_snowflake(df: pd.DataFrame, table_name: str = "CTS_DB.PUBLIC.PATIENT
     cur.close()
     conn.close()
 
-    logging.info(f"✅ Loaded {len(df)} rows into Snowflake ({table_name})")
+    logging.info(f" Loaded {len(df)} rows into Snowflake ({table_name})")
 
 
 
